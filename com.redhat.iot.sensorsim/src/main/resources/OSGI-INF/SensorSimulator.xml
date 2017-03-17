@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" 
+    name="com.redhat.iot.demo.simulator.SensorSimulator"
+	configuration-policy="require" enabled="true" immediate="true"
+    activate="start" deactivate="stop" modified="updated">
+
+  <property name="service.pid" type="String" value="com.redhat.iot.demo.simulator.SensorSimulator"/>
+
+  <implementation class="com.redhat.iot.demo.simulator.SensorSimulator"/>
+
+  <service>
+	<provide interface="org.eclipse.kura.configuration.ConfigurableComponent"/>
+    <provide interface="com.redhat.iot.demo.simulator.SensorSimulator"/>
+  </service>
+
+  <reference name="CloudService"
+			   policy="static"
+			   bind="setCloudService"
+			   unbind="unsetCloudService"
+			   cardinality="1..1"
+			   interface="org.eclipse.kura.cloud.CloudService"/>
+
+</scr:component>

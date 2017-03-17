@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.redhat.iot.demo</groupId>
+  <artifactId>com.redhat.iot.sensorsim</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <packaging>bundle</packaging>
+
+  <properties>
+    <!-- Kura Java runtime version is 7. -->
+    <maven.compiler.source>1.7</maven.compiler.source>
+    <maven.compiler.target>1.7</maven.compiler.target>
+
+    <maven-bundle-plugin.version>3.0.1</maven-bundle-plugin.version>
+    <slf4j.version>1.6.6</slf4j.version>
+  </properties>
+
+  <repositories>
+    <repository>
+      <id>repo.eclipse.org</id>
+      <name>Eclipse Kura Repository - Releases</name>
+      <url>https://repo.eclipse.org/content/repositories/kura-releases/</url>
+    </repository>
+  </repositories>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.7</version>
+    </dependency>
+    <dependency>
+      <groupId>com.redhat</groupId>
+      <artifactId>iot-simulator</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>19.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.kura</groupId>
+      <artifactId>org.eclipse.kura.api</artifactId>
+      <version>1.0.9</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>5.0.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j.version}</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <version>${maven-bundle-plugin.version}</version>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Service-Component>OSGI-INF/*.xml</Service-Component>
+          </instructions>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>de.dentrassi.maven</groupId>
+        <artifactId>osgi-dp</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>build</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <additionalDependencies>
+            <dependency>
+              <groupId>com.google.code.gson</groupId>
+              <artifactId>gson</artifactId>
+              <version>2.7</version>
+            </dependency>
+            <dependency>
+              <groupId>com.redhat</groupId>
+              <artifactId>iot-simulator</artifactId>
+              <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+              <groupId>com.google.guava</groupId>
+              <artifactId>guava</artifactId>
+              <version>19.0</version>
+            </dependency>
+          </additionalDependencies>
+        </configuration>
+      </plugin>
+<!--
+      <plugin>
+        <groupId>de.dentrassi.maven</groupId>
+        <artifactId>osgi-dp</artifactId>
+        <extensions>true</extensions>
+      </plugin>
+-->
+    </plugins>
+  </build>
+
+</project>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.2.0" localization="en_us">
+    <OCD id="com.redhat.iot.demo.simulator.SensorSimulator"
+         name="Sensor Simulator" description="Configurable Sensor Simulator">
+
+      <Icon resource="OSGI-INF/redhat-iot.png" size="32" />
+
+      <AD id="enabled"
+          name="Enable service"
+          description="If the service is enabled it will poll files at the location below and publish data"
+          type="Boolean"
+          cardinality="1"
+          required="true"
+          default="false"
+      />
+
+      <AD id="sensorconfig"
+          name="Sensor Config string"
+          description="List of sensors ids, data config, etc. (replaces json config file) NOTE: If you change this, the demo will break"
+          type="String"
+          cardinality="0"
+          required="false"
+          default="{'sensors':[{'id':0,'mean':100.0,'variance':5.0,'emittime':1000},{'id':1,'mean':250.0,'variance':25.0,'emittime':1500}],'devices':2,'timeoffset':false,'name':'Simulator','runtime':60000}"
+      />
+
+      <AD id="cloudService"
+          name="Cloud Service PID"
+          description="The service PID of the Cloud Service to use (Do not change for demo)"
+          type="String"
+          cardinality="1"
+          required="false"
+          default="org.eclipse.kura.cloud.CloudService"
+      />
+
+      <AD id="topic.prefix"
+          name="Topic prefix to publish messages"
+          description="The top level topic to publish your messages to"
+          type="String"
+          cardinality="0"
+          required="true"
+          default="sensorsim/assets"
+      />
+
+      <!--default="file:/vagrant/files//?fileName=Sensortag0.csv&delete=false"-->
+
+    </OCD>
+
+    <Designate pid="com.redhat.iot.demo.simulator.SensorSimulator">
+        <Object ocdref="com.redhat.iot.demo.simulator.SensorSimulator"/>
+    </Designate>
+</MetaData>
