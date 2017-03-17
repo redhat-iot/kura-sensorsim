@@ -1,0 +1,2 @@
+# Overview
+This is a Kura component that generates sensor data in user specified formats. For instance, one could install this component in Kura and configure a mock sensor that simulates a specific device.

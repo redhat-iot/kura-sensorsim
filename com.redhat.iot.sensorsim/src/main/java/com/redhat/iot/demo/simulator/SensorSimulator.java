@@ -26,6 +26,7 @@ public class SensorSimulator implements ConfigurableComponent, CloudClientListen
 
     private static final Logger logger = LoggerFactory.getLogger(SensorSimulator.class);
     public static final String TOPIC_PREFIX = "topic.prefix";
+    public static final String SENSORCONFIG = "sensorconfig";
 
     private static String KURA = "cloud:";
     private static String TOPIC = "sensorsim/assets";
@@ -33,8 +34,10 @@ public class SensorSimulator implements ConfigurableComponent, CloudClientListen
     private CloudService cloudService;
     private CloudClient cloudClient;
 
-    private String topic;
+    private String topicPrefix;
     private Device device;
+    private ExecutorService executor;
+    private String sensorspec;
 
 
     public void setCloudService(CloudService cloudService) {
@@ -55,6 +58,8 @@ public class SensorSimulator implements ConfigurableComponent, CloudClientListen
             return;
         }
 
+        doUpdate(properties);
+
         // Create classes, threads, etc and do stuff here, but return when finished
 
     }
@@ -62,20 +67,25 @@ public class SensorSimulator implements ConfigurableComponent, CloudClientListen
     public void updated(final Map<String, Object> properties) throws Exception {
         logger.info("Updating: {}", properties.entrySet());
 
-        topic = (String) properties.get(TOPIC_PREFIX);
-
-
-        if (!(Boolean)properties.get("enabled")) {
+        if (!(Boolean)properties.get("enabled") || sensorspec.equals(properties.get(SENSORCONFIG))) {
+            logger.info("Config for component has not changed or it is disabled");
             return;
         }
 
-        logger.info("Retrieving properties", properties.get("sensorconfig"));
+        doUpdate(properties);
+
+    }
+
+    private void doUpdate(Map<String, Object> properties) {
+        sensorspec = (String) properties.get(SENSORCONFIG);
+        topicPrefix = (String) properties.get(TOPIC_PREFIX);
+
+        logger.info("Retrieving properties", properties.get(SENSORCONFIG));
 
         Gson gson = new Gson();
-        device = gson.fromJson((String) properties.get("sensorconfig"), Device.class);
+        device = gson.fromJson((String) properties.get(SENSORCONFIG), Device.class);
         logger.info("Config for {} retrieved", device.getSensors());
-        ExecutorService executor = Executors.newFixedThreadPool(device.getDevices());
-        long start = new Date().getTime();
+        executor = Executors.newFixedThreadPool(device.getDevices());
 
         for (int x = 0; x < device.getDevices(); x++) {
             List<Sensor> sensors = Lists.newArrayList();
@@ -88,41 +98,25 @@ public class SensorSimulator implements ConfigurableComponent, CloudClientListen
                 sensors.add(s);
             }
             System.out.println("Creating Device: " + x);
+            // TODO: Might want to pass cloudservice in to each device here to publish messages
+            // Device name will need to be sequential
             DeviceSim device = new DeviceSim(x, this.device.getName(), sensors, this.device.isTimeoffset(), this.device.getRuntime());
             System.out.println("Starting Thread: " + x);
             executor.execute(device);
         }
-
-        long dur = new Date().getTime() - start;
-        System.out.println(dur);
-        while (dur < device.getRuntime()) {
-            try {
-                System.out.println("Sleeping in mainthread for 10 seconds");
-                Thread.sleep(10000);
-                dur = new Date().getTime() - start;
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        System.out.println("Shutdown all Threads");
-        executor.shutdownNow();
-
     }
 
     public void stop() throws Exception {
         logger.info("Stopping: ");
         // Stop everything and clean up
+        executor.shutdownNow();
 
     }
 
     private void doPublish() {
         KuraPayload payload = new KuraPayload();
-
-        // Timestamp the message
         payload.setTimestamp(new Date());
 
-        // Add the temperature as a metric to the payload
 /*
         payload.addMetric("temperature", this.temperature);
 
@@ -147,8 +141,8 @@ public class SensorSimulator implements ConfigurableComponent, CloudClientListen
 
         // Publish the message
         try {
-            int messageId = this.cloudClient.publish(topic, payload, qos, retain);
-            logger.info("Published to {} message: {} with ID: {}", new Object[] { topic, payload, messageId });
+            int messageId = this.cloudClient.publish(topicPrefix, payload, qos, retain);
+            logger.info("Published to {} message: {} with ID: {}", new Object[] { topicPrefix, payload, messageId });
         } catch (Exception e) {
             logger.error("Cannot publish topic: " + topic, e);
         }
